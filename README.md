@@ -17,7 +17,7 @@ modulejs是一款比seajs、commonjs更加简洁、小巧的javascript模块化�
 
 ## 开始使用
 
-只需要在入口的html里引入module.js,并对所有需要用到的module进行明文配置,可以参见demo: https://github.com/TC-FE/modulejs/
+只需要在入口的html里引入module.js,并对所有需要用到的module进行明文配置,可以参见demo: https://github.com/TC-FE/modulejs/tree/master/example
 
 ```
     <script src="../module.js"></script>
