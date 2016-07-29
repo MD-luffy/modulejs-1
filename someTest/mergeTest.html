@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>mergeObject测试</title>
+</head>
+<body>
+    <script type="text/javascript">
+    //合并对象属性
+    function mergeObject(a, b) {
+        for (var i in b) {
+            if (!b.hasOwnProperty(i)) {
+                continue;
+            }
+            if (!a[i]) {
+                a[i] = b[i];
+            } else if (Object.prototype.toString.call(b[i]) == "[object Object]") { //对象递归合并
+                mergeObject(a[i], b[i]);
+            } else {
+                a[i] = b[i]; //a和b有相同属性的情况，直接覆盖
+            }
+        }
+        return a;
+    }
+    var a = {
+        may: "may",
+        1: "1",
+        obj:{
+            aObj: "aObj"
+        }
+    };
+    var b = {
+        be: "be",
+        2: "2",
+        may: "bmay",
+        obj: {
+            bObj: "bObj"
+        }
+    }
+    console.log(mergeObject(a,b))
+    </script>
+</body>
+</html>
