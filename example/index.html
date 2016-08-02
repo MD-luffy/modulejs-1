@@ -6,23 +6,36 @@
 </head>
 <body>
     <p>打开console以查看demo</p>
+    <p class="red">打开console以查看demo</p>
+    <p class="green">打开console以查看demo</p>
+    <p class="blue">打开console以查看demo</p>
+    <p class="yellow">打开console以查看demo</p>
+    <p class="orange">打开console以查看demo</p>
     <script src="../module.js"></script>
     <script type="text/javascript">
         modulejs.config({
             /**
-             * [初始化配置,alias为必选参数,在这里设置所有声明的模块名和对应的路径,路径除了支持相对路径外，还支持http方式的路径。]             * @type {Object}
+             * 初始化配置,alias为必选参数,在这里设置所有声明的模块名和对应的路径,路径除了支持相对路径，http方式的线上路径等。
              */
             alias: {
                 "log": "./log.js",//模块名:地址
                 "debug": "./debug.js",
                 "error": "./handle.js",
-                "warn": "./handle.js"
+                "warn": "./handle.js",
+                "inf": "http://static.gtimg.com/js/version/201412/inf.201412202042.js?t=1" //这里只是配置了模块和路径，但是modulejs没依赖就没下载，用到的时候才下载——LazyLoad特性
             }
         });
         modulejs(["log", "debug"], function(log, debug) {
             log.warn('something warn.');
             log.err('somethin error.');
             debug('debug here.');
+            require.async("inf",function(inf){ //异步加载inf模块
+                console.log(inf.on); //inf模块的on方法
+            });
+            require.css("./pCss.css",function(event){
+                console.log(event)
+            });
+
         });
     </script>
 </body>

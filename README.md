@@ -79,7 +79,7 @@ _moduleConfig={
 ```
 将在模块require的时候异步发起请求对应模块。
 
-### modulejs(desp,callback)
+### modulejs(desp, callback)
 作为框架入口，用来加载需要的模块，并执行指定的回调,执行时会把相关依赖的model按照依赖顺序传入。
 这里的模块为已经配置好模块路径的（modulejs.config或者_moduleConfig）
 ```js
@@ -89,7 +89,7 @@ modulejs(["module1","module2"], function(m1,m2) {
 })
 ```
 
-### define(moduleid,desp,factory)
+### define(moduleid, [desp], factory)
 用来定义模块。modulejs中可以把多个define放在一个文件里面，自由组合。
 
 参数 | 解释
@@ -108,7 +108,7 @@ module   | 本身module对象，一般用不上
 
 exports和module的关系可以参考[此文](http://cnodejs.org/topic/5231a630101e574521e45ef8)
 
-#### 使用举例
+**使用举例**
 ```js
 define("module",[],function(require, exports, module) {
   // 模块代码
@@ -124,7 +124,7 @@ define("module",function(require, exports) {
 
 ```
 
-### require
+### require(id, [callback])
 用来获取指定模块的接口，基本用法：
 
 ```js
@@ -136,16 +136,59 @@ define("module1",function(require) {
 });
 ```
 
+### require.async(id, callback)
+```js
+modulejs.config({
+    alias: {
+        "inf": "http://static.gtimg.com/js/version/201412/inf.201412202042.js?t=1" //这里只是配置了模块和路径，但是modulejs没依赖就没下载，用到的时候才下载——LazyLoad特性
+    }
+});
+modulejs([someModules], function(log, debug) {
+    require.async("inf",function(inf){ //异步加载inf模块
+        console.log(inf);
+    });
+});
+```
+
+### require.css(path, callback)
+```js
+require.css("./pCss.css",function(event){
+    console.log(event)
+});
+```
 ### _cacheThisModule_
 
 在模块中定义```var _cacheThisModule_;```，modulejs会在localstorage里缓存该模块
+
+
+
+### window["_moduleConfig"]
+内部cfg对象配置，可以控制台输出查看
+
+- window["_moduleConfig"].timing['loadcache'] 为_loadCache()函数执行的时间
+- window["_moduleConfig"].timing[url] 为对应模块的加载时间
+- window["_moduleConfig"].timing[moduleName] 为对应模块的执行时间
+- window["_moduleConfig"].uris 保存对应URL的加载状态，1为正在加载，2为已加载
+- 
+
+### mdebug参数
+url如果有 **mdebug=1** 参数会开启debug模式，不会缓存
+
+## modulejs开启模块缓存条件
+
+1. 支持JSON且window.localStorage
+2. 内部isCache开关为true(默认为true)
+3. url不包含 **mdebug=1** 参数
+4. ie版本不为ie6及以下版本（这里无法检测ie11的UA）
+5. 模块id不包含下划线'_'
+6. 模块代码包含`_cacheThisModule_`字符串(通常写在模块开头效率会高一点)
 
 ## Change Log
 ### v1.0.1
 * 4月1日发布的seajs2.0让我们产生了自己开发一套模块加载和管理工具的冲动。主要解决了几个在我们项目中用着不太爽的部分：
 * 所有的模块定义文件可以自由的进行合并、组合，不限定一个define一个文件或者部署的时候需要相关的配置工具支持。
 * 把alias作为了配置核心，框架需要明文声明每个module id所对应的url，不再依赖路径规则进行分析
-* 支持在modulejs文件加载前预设置配置，通过_moduleConfig全局变量赋值即可。
+* **支持在modulejs文件加载前预设置配置，通过_moduleConfig全局变量赋值即可。**
 * define的时候可以明文指定依赖和静态分析依赖，最终会进行合并
 * 深入的分析了一下模块加载和管理原理，发现模块管理根本可以不依赖于浏览器那不靠谱的onload事件。我们实现了。
 * 本库使用了requirejs里面的依赖分析正则。特此感谢。

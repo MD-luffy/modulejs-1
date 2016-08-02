@@ -380,8 +380,9 @@ var modulejs, require, define;
 
         var agent = navigator.userAgent.toLowerCase();
         if (agent.indexOf("msie") > 0) {
-            var m = agent.match(/msie\s([\d\.]+);/i);
-            if (m && m.length >= 2 && parseInt(m[1]) <= 6) {
+            //http://www.cnblogs.com/hykun/p/Ua.html#InternetExplorer
+            var m = agent.match(/msie\s([\d\.]+);/i); //检测IE的UA的正则式，ie6-10，ie11无检测到
+            if (m && m.length >= 2 && parseInt(m[1]) <= 6) { //版本号小于等于6则退出
                 return false;
             }
         }
@@ -551,7 +552,7 @@ var modulejs, require, define;
 
     _require.async = _modulejs;
 
-    _require.css = function(path) {
+    _require.css = function(path,callback) { //应该是忘了写callback这个参数了，已补
             /*
             var node = document.createElement("link");
             node.charset = "utf-8";
@@ -584,7 +585,7 @@ var modulejs, require, define;
 
     function _modulejs(deps, factory) {
         //把入口回调作为一个回调模块定义，当有多个入口的时候，都放在数组里面
-        _define("_init", deps, factory);
+        _define("_init", deps, factory);    
     }
     //递归检查深层依赖环境是否完成，并加载确实的module
 
@@ -828,7 +829,6 @@ var modulejs, require, define;
     //分析module的依赖关系
 
     function parseDependencies(code) {
-
         var commentRegExp = /(\/\*([\s\S]*?)\*\/|([^:|^"|^']|^)\/\/(.*)$)/mg;
         var cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g;
         var ret = [];
