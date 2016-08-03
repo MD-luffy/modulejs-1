@@ -1,7 +1,6 @@
 /**
  * JSON支持
- * @param  {[type]} ){function f(n){return  n<10?"0"+n:n;}if(typeof Date.prototype.toJSON!=="function"){Date.prototype.toJSON=function(key){return isFinite(this.valueOf())?this.getUTCFullYear()+"-"+f(this.getUTCMonth()+1)+"-"+f(this.getUTCDate())+"T"+f(this.getUTCHours())+":"+f(this.getUTCMinutes())+":"+f(this.getUTCSeconds() [description]
- * @return {[type]}             [description]
+ * https://github.com/douglascrockford/JSON-js/blob/master/json2.js
  */
 if (typeof JSON !== "object") {
     JSON = {};
@@ -156,6 +155,7 @@ if (typeof JSON !== "object") {
         };
     }
 }());
+
 /**
  * modulejs 1.0.2
  * author:kpxu\jimyan\wowowang
@@ -164,7 +164,7 @@ if (typeof JSON !== "object") {
  *   思路精巧优雅，包含注释在内只有222行，同时也吸收了seajs和requirejs的一些优点
  * see：https://github.com/eccued/modulejs
  * update----brianliu 20130924
- *           更新require.css支持alias
+ * 更新require.css支持alias
  */
 var modulejs, require, define;
 (function(global) {
@@ -172,7 +172,7 @@ var modulejs, require, define;
     var version = "1.0.2";
     var isCache = true;
     var MODULE_LOADING = 1,
-        MODULE_SUCCESS = 2; //模块加载的状态，  loading是发起loadScript， success是define成功
+        MODULE_SUCCESS = 2; //模块加载的状态,loading是发起loadScript,success是define成功
     var cacheTime = 60 * 60 * 24 * 30 * 1000; //一个月
     cfg = {
         debug: location.href.indexOf("mdebug=1") != -1 ? true : false, //调试模式。
@@ -198,12 +198,18 @@ var modulejs, require, define;
     };
     //读取预配置
     _modulejs.config = config;
+    //将传入的参数与cfg合并
     config(global["_moduleConfig"] ? global._moduleConfig : cfg);
+    //设置window._moduleConfig为cfg
     global["_moduleConfig"] = cfg;
+
+
     //输出api
     require = _require; //引用
     define = _define; //定义
     modulejs = _modulejs; //入口
+
+
     //监听模块准备就绪的事件,并检查需要回调module的相关依赖是否全部就绪
     on("module_ready", function(id, fromeCache) {
         cfg.callback = cleanArray(cfg.callback);
@@ -374,8 +380,9 @@ var modulejs, require, define;
 
         var agent = navigator.userAgent.toLowerCase();
         if (agent.indexOf("msie") > 0) {
-            var m = agent.match(/msie\s([\d\.]+);/i);
-            if (m && m.length >= 2 && parseInt(m[1]) <= 6) {
+            //http://www.cnblogs.com/hykun/p/Ua.html#InternetExplorer
+            var m = agent.match(/msie\s([\d\.]+);/i); //检测IE的UA的正则式，ie6-10，ie11无检测到
+            if (m && m.length >= 2 && parseInt(m[1]) <= 6) { //版本号小于等于6则退出
                 return false;
             }
         }
@@ -545,7 +552,7 @@ var modulejs, require, define;
 
     _require.async = _modulejs;
 
-    _require.css = function(path) {
+    _require.css = function(path,callback) { //应该是忘了写callback这个参数了，已补
             /*
             var node = document.createElement("link");
             node.charset = "utf-8";
@@ -578,7 +585,7 @@ var modulejs, require, define;
 
     function _modulejs(deps, factory) {
         //把入口回调作为一个回调模块定义，当有多个入口的时候，都放在数组里面
-        _define("_init", deps, factory);
+        _define("_init", deps, factory);    
     }
     //递归检查深层依赖环境是否完成，并加载确实的module
 
@@ -630,8 +637,13 @@ var modulejs, require, define;
         }
         return id
     }
-    //配置方法
 
+    /**
+     * 合并对象属性
+     * @param  {[Object]} a [对象a]
+     * @param  {[Object]} b [对象b]
+     * @return {[Object]}   [合并完成的对象]
+     */
     function mergeObject(a, b) {
         for (var i in b) {
             if (!b.hasOwnProperty(i)) {
@@ -639,17 +651,25 @@ var modulejs, require, define;
             }
             if (!a[i]) {
                 a[i] = b[i];
-            } else if (Object.prototype.toString.call(b[i]) == "[object Object]") {
+            } else if (Object.prototype.toString.call(b[i]) == "[object Object]") { //对象递归合并
                 mergeObject(a[i], b[i]);
             } else {
-                a[i] = b[i];
+                a[i] = b[i]; //a和b有相同属性的情况，直接覆盖
             }
         }
         return a;
     }
 
+    /**
+     * 配置函数，将传入的obj合并到cfg中
+     * @param  {[Object]} obj [需要合并的Object]
+     * @return {[Object]}     [模块内部的cfg内部参数]
+     */
     function config(obj) {
-        return cfg = mergeObject(cfg, obj);
+        if(obj !== cfg) { //@当obj不为默认才merge，否则直接返回
+            cfg = mergeObject(cfg, obj);
+        }
+        return cfg;
     }
     //module原型
 
@@ -761,7 +781,6 @@ var modulejs, require, define;
     }
 
     //事件监听
-
     function on(name, cb) {
         var cbs = cfg.events[name];
         if (!cbs) {
@@ -771,7 +790,6 @@ var modulejs, require, define;
     }
 
     //事件广播
-
     function emit(name, evt) {
         debug(name, evt);
 
@@ -786,8 +804,8 @@ var modulejs, require, define;
             delete cfg.events[name];
         }
     }
-    //清理数组中的空元素
 
+    //清理数组中的空元素
     function cleanArray(a) {
         var n = [];
         for (var i = 0; i < a.length; i++) {
@@ -795,8 +813,8 @@ var modulejs, require, define;
         }
         return n;
     }
-    //去重合并数组
 
+    //去重合并数组
     function mergeArray(a, b) {
         for (var i = 0; i < b.length; i++) {
             (("," + a + ",").indexOf("," + b[i] + ",") < 0) && a.push(b[i]);
@@ -811,7 +829,6 @@ var modulejs, require, define;
     //分析module的依赖关系
 
     function parseDependencies(code) {
-
         var commentRegExp = /(\/\*([\s\S]*?)\*\/|([^:|^"|^']|^)\/\/(.*)$)/mg;
         var cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g;
         var ret = [];
