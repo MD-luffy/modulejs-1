@@ -169,7 +169,6 @@ require.css("./pCss.css",function(event){
 - window["_moduleConfig"].timing[url] 为对应模块的加载时间
 - window["_moduleConfig"].timing[moduleName] 为对应模块的执行时间
 - window["_moduleConfig"].uris 保存对应URL的加载状态，1为正在加载，2为已加载
-- 
 
 ### mdebug参数
 url如果有 **mdebug=1** 参数会开启debug模式，不会缓存
